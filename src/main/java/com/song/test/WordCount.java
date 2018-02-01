@@ -14,6 +14,16 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import java.io.IOException;
 
 public class WordCount {
+
+    //输入文件的相对路径
+    private static String inPath = "/hadoop_test/wordcount.txt";
+
+    //输出文件的相对路径
+    private static String outPath = "/hadoop_test/output";
+
+    //hdfs地址
+    private static String hdfs = "hdfs://localhost:8020";
+
     /**
      * Map :读取输入的文件
      */
@@ -61,8 +71,9 @@ public class WordCount {
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
         //创建Configuration
         Configuration configuration = new Configuration();
+        configuration.set("fs.defaultFS", hdfs);
         //准备清理已经存在的输出目录
-        Path outputpath = new Path(args[1]);
+        Path outputpath = new Path(outPath);
         FileSystem fileSystem = FileSystem.get(configuration);
         if (fileSystem.exists(outputpath)) {
             fileSystem.delete(outputpath, true);
@@ -73,7 +84,7 @@ public class WordCount {
         //设置job的处理类
         job.setJarByClass(WordCount.class);
         //设置作业处理的输入路径
-        FileInputFormat.setInputPaths(job, new Path(args[0]));
+        FileInputFormat.setInputPaths(job, new Path(inPath));
 
         //设置map相关参数
         job.setMapperClass(MyMapper.class);
@@ -87,7 +98,7 @@ public class WordCount {
         job.setOutputValueClass(LongWritable.class);
 
         //设置作业处理的输出路径
-        FileOutputFormat.setOutputPath(job, new Path(args[1]));
+        FileOutputFormat.setOutputPath(job, new Path(outPath));
         //提交作业
         System.exit(job.waitForCompletion(true) ? 0 : 1);
 
